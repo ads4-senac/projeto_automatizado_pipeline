@@ -1,7 +1,9 @@
 pipeline {
+	// Teste o script antes de comitar
+	// curl --user admin:admin -X POST -F "jenkinsfile=<JenkinsFile" http://localhost:8080/pipeline-model-converter/validate
 	agent any
 	environment {
-		projectWS = $WORKSPACE + "/TesteJenkins"
+		projectWS = "$WORKSPACE/TesteJenkins"
 	}
 	stages {
 //		stage('Prepare-workspace-local') {
