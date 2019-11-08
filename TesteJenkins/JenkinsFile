@@ -1,23 +1,30 @@
 pipeline {
 	agent any
+	environment {
+		projectWS = $WORKSPACE + "/TesteJenkins"
+	}
 	stages {
-		stage('Prepare-workspace') {
+//		stage('Prepare-workspace-local') {
 //			steps {
 //				echo 'Limpando a workspace'
 //				sh 'rm -rvf $WORKSPACE/*'
 //				echo 'Copiando arquivos do projeto local para workspace'
 //				sh 'cp -Rf /media/alexferreira/SSD/Documentos/Repositorios_git/Repositorios_Senac' +
 //						'/desenvolvimento_movel/AprendendoRetrofit/* $WORKSPACE'
+//				echo 'Criando wrapper para gradle'
+//				sh '$WORKSPACE/TesteJenkins/gradle wrapper'
 //			}
+//		}
+		stage('Prepare-workspace-remota') {
 			steps {
-				echo 'Fazendo checkout do projeto via git'
-
+				echo 'Criando wrapper para gradle'
+				sh '$projectWS/gradle wrapper'
 			}
 		}
 		stage('Teste-unit') {
 			steps {
 				echo 'Executando testes de unit e exportando resultados'
-				sh '$WORKSPACE/gradlew test'
+				sh '$projectWS/gradlew test'
 			}
 		}
 // //		stage('Teste-instrumentation') {
@@ -30,13 +37,13 @@ pipeline {
 		stage('build-lint') {
 			steps {
 				echo 'Rodando lint para release'
-				sh '$WORKSPACE/gradlew lintRelease'
+				sh '$projectWS/gradlew lintRelease'
 			}
 		}
 		stage('build-apk') {
 			steps {
 				echo 'Gerando apk signing'
-				sh '$WORKSPACE/gradlew assembleRelease'
+				sh '$projectWS/gradlew assembleRelease'
 			}
 		}
 		stage('Arquive-apk') {
