@@ -11,27 +11,33 @@ pipeline {
 //				echo 'Limpando a workspace'
 //				sh 'rm -rvf $WORKSPACE/*'
 //				echo 'Copiando arquivos do projeto local para workspace'
-//				sh 'cp -Rf /media/alexferreira/SSD/Documentos/Repositorios_git/Repositorios_Senac' +
-//						'/desenvolvimento_movel/AprendendoRetrofit/* $WORKSPACE'
+//				sh 'cp -Rf /media/alexferreira/SSD/Documentos/Repositorios_git/Repositorios_Senac/projeto_automatizado_pipeline/* $WORKSPACE'
 //				echo 'Criando wrapper para gradle'
-//				sh '$WORKSPACE/TesteJenkins/gradle wrapper'
+//				dir("$projectWS") {
+//					sh 'gradle wrapper'
+//				}
 //			}
 //		}
 		stage('Prepare-workspace-remota') {
 			steps {
 				echo 'Criando wrapper para gradle'
-				sh '$projectWS/gradle wrapper'
+				dir("$projectWS") {
+					sh 'gradle wrapper'
+				}
 			}
 		}
 		stage('Teste-unit') {
 			steps {
 				echo 'Executando testes de unit e exportando resultados'
-				sh '$projectWS/gradlew test'
+				dir("$projectWS") {
+					sh '$projectWS/gradlew test'
+				}
 			}
 		}
 // //		stage('Teste-instrumentation') {
 // //			steps {
 // //				echo 'Executando testes de instrumentacao e exportando resultados'
+//		setProjectDir()
 // //				sh 'gradlew '
 // //				junit 'reports/**/*.xml'
 // //			}
@@ -39,19 +45,24 @@ pipeline {
 		stage('build-lint') {
 			steps {
 				echo 'Rodando lint para release'
-				sh '$projectWS/gradlew lintRelease'
+				dir("$projectWS") {
+					sh '$projectWS/gradlew lintRelease'
+				}
 			}
 		}
 		stage('build-apk') {
 			steps {
 				echo 'Gerando apk signing'
-				sh '$projectWS/gradlew assembleRelease'
+				dir("$projectWS") {
+					sh '$projectWS/gradlew assembleRelease'
+				}
 			}
 		}
 		stage('Arquive-apk') {
 			steps {
 				echo 'Arquivando apk gerado'
-				archiveArtifacts artifacts: '**/app-release.apk', fingerprint: true
+				archiveArtifacts artifacts: '**/app-release.apk', fingerprint: true, allowEmptyArchive: true
+				archiveArtifacts artifacts: '**/app-release-unsigned.apk', fingerprint: true, allowEmptyArchive: false
 			}
 		}
 	}
